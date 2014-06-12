@@ -4,61 +4,52 @@ include TestHelper
 
 describe "GetTests", :type => :request do
 
-    it "/get keys" do
+    it "save id of 5ths user" do
         get ''
         expect(response).to be_success
-        json = JSON.parse(response.body)
-        expect(json.has_key?("status")).to eq(true)
-        expect(json.has_key?("result")).to eq(true)
+        $id = json['result'][5]['id'].to_s
     end
 
-    it "/get result" do
-        get ''
+    it "/get?id=ID keys" do
+        get '/get?id=' + $id
         expect(response).to be_success
-        json = JSON.parse(response.body)
-        json_result = remove_ids(json['result'])
-        json_result_expected = [{"id"=>0,"name"=>"David Bush"},
-                        {"id"=>0,"name"=>"Mikka Heep"},
-                        {"id"=>0,"name"=>"Hannah Oberty"},
-                        {"id"=>0,"name"=>"Petula Jackson"},
-                        {"id"=>0,"name"=>"Clark Peterson"},
-                        {"id"=>0,"name"=>"Betty Williamson"},
-                        {"id"=>0,"name"=>"John Doe"},
-                        {"id"=>0,"name"=>"John \"Fireman\" Smith"},
-                        {"id"=>0,"name"=>"Harrison Ford"},
-                        {"id"=>0,"name"=>"Bob Dowson"}]
-        expect(json_result.length).to eq(10)
-        expect(json_result).to eq(json_result_expected)
-    end
-
-=begin
-    it "/get?id=35913 keys" do
-        get '/get?id=35913'
-        expect(response).to be_success
-        json = JSON.parse(response.body)
+        # BUG
+        #expect(response.content_type).to eq("application/json")
+        expect(response.content_type).to eq("text/html")
         expect(json.has_key?("status")).to eq(true)
+        expect(json['status']).to eq("OK")
         # BUG
         #expect(json.has_key?("result")).to eq(true)
         expect(json.has_key?("reslut")).to eq(true)
        end
         
-    it "/get?id=35913 status" do
-        get '/get?id=35913'
+    it "/get?id=ID result keys" do
+        get '/get?id=' + $id
         expect(response).to be_success
-        json = JSON.parse(response.body)
-        expect(json['status']).to eq("OK")
+        expect(json['reslut'].class).to eq(Hash)
+        expect(json['reslut']['id'].class).to eq(String)
+        expect(json['reslut']['name'].class).to eq(String)
     end
 
-    it "/get?id=35913 result value" do
-        get '/get?id=35914' 
+    it "save id of 7ths user" do
+        get ''
         expect(response).to be_success
-        json = JSON.parse(response.body)
-#        puts json.class
-#        puts YAML::dump(json)
-        json_expected = {"id" => "35913", "name" => "Bob Dowson"}
-        expect(json['reslut']).to eq(json_expected)
+        $id = json['result'][7]['id'].to_s
     end
-=end
 
+    it "/get?id=ID escaping" do
+        get '/get?id=' + $id
+        expect(response).to be_success
+        # BUG
+        #expect(valid_json? response.body).to be true
+        expect(valid_json? response.body).to be false
+    end
+
+    it "/get?id=ID nonexistent" do
+        get 'get?id=-1'
+        # BUG
+        #expect(response.status).to eq(200)
+        expect(response.status).to eq(404)
+    end
 end
 
