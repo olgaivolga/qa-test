@@ -4,10 +4,6 @@ include TestHelper
 
 describe "RootTests", :type => :request do
 
-    before(:each) do
-        Rails.cache.clear
-    end
-
     it "/ keys" do
         get '/'
         expect(response).to be_success
